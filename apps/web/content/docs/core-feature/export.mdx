@@ -1,0 +1,53 @@
+---
+title: Export
+description: One command to a self-contained static HTML site or PDF.
+---
+
+`open-slide build` produces a plain static site under `dist/` — everything
+renders on the client, so no server is needed.
+
+## Static HTML
+
+```npm
+npm run build
+npm run preview     # serves dist/ for sanity-checking
+```
+
+`dist/` is portable. Drop it on Vercel, Cloudflare Pages, Netlify, Zeabur,
+GitHub Pages — anything that hosts files.
+
+## From the toolbar
+
+The **Export** menu in the slide toolbar exports the active deck directly:
+
+- **HTML** — a static HTML snapshot of the deck. Decks that reference
+  assets download as a zip (HTML file + assets folder).
+- **PDF** — one 1920 × 1080 landscape PDF page per deck page. Not supported
+  in Safari.
+- **PPTX (images)** — each page rendered as an image on a PowerPoint slide.
+  Native editable PPTX export is not available yet.
+
+## What gets shipped
+
+The build pipeline only includes:
+
+- The decks under `slides/`.
+- The assets each deck imports.
+- The runtime — viewer, scaler, present mode (configurable; see below).
+
+You can trim the surface area for a public share by toggling fields in
+[`open-slide.config.ts`](/docs/reference/config):
+
+```ts
+import type { OpenSlideConfig } from '@open-slide/core';
+
+const config: OpenSlideConfig = {
+  build: {
+    showSlideBrowser: false,    // hide the deck index
+    showSlideUi: false,         // hide on-canvas UI (toolbar etc.)
+    allowHtmlDownload: false,   // hide the export menu (HTML / PDF / PPTX)
+  },
+};
+
+export default config;
+```

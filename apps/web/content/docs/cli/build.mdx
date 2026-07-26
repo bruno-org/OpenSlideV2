@@ -1,0 +1,39 @@
+---
+title: open-slide build
+description: Produce a static, deployable build.
+---
+
+```npm
+open-slide build
+# or
+npm run build
+```
+
+Builds every deck under `slides/` into a self-contained static site at
+`dist/`. The output has no server requirement — drop it on any static host.
+
+## Flags
+
+| Flag                | Default | Description                                  |
+| ------------------- | ------- | -------------------------------------------- |
+| `--out-dir <dir>`   | `dist`  | Write the static build to a custom folder.   |
+
+## Output
+
+```text
+dist/
+├── index.html
+├── assets/
+│   └── ...hashed files...
+└── ...
+```
+
+## Configuration
+
+Two `open-slide.config.ts` fields matter at build time:
+
+- For a public share, hide the slide browser and on-canvas UI with the
+  `build` toggles — see [Export](/docs/core-feature/export).
+- If the build won't sit at the domain root (GitHub Pages project sites, a
+  reverse-proxy folder), set `base` so asset URLs and navigation resolve
+  against the deployed path — see [Config](/docs/reference/config).

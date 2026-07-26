@@ -1,0 +1,49 @@
+---
+title: /slide-authoring
+description: The technical reference the agent reads before writing a slide.
+---
+
+`/slide-authoring` is the canonical spec for everything inside
+`slides/<id>/` — the file contract, the 1920×1080 canvas, type scale,
+spacing, palette rules, and per-primitive references. `/create-slide` and
+`/apply-comments` defer to it for the *how*.
+
+You don't usually invoke `slide-authoring` directly. Other skills do.
+
+## What it ships
+
+The defaults below are opinionated so an agent doesn't have to reinvent the
+look of every deck. Override any of it per-deck, or codify your overrides
+in a [theme](/docs/core-feature/themes).
+
+### Type scale
+
+A 1920×1080 stage pairs well with bigger type than the web is used to:
+
+| Role            | Size (px) |
+| --------------- | --------- |
+| Hero title      | 140 – 200 |
+| Section heading | 80 – 120  |
+| Page heading    | 56 – 80   |
+| Body            | 32 – 44   |
+| Caption / label | 22 – 28   |
+
+### Spacing
+
+- Content padding: 100–160 px from the canvas edges.
+- Line-height: 1.2 for headings, 1.5–1.7 for body.
+- The canvas doesn't scroll — the skill makes the agent budget every page's
+  vertical space against the 1080 px height before writing JSX, and split
+  into two pages rather than shrink type to fit.
+
+### Visual direction
+
+- **Palette** — 1 background, 1 primary text, 1 accent, 1 muted.
+- **Typography** — one display font + one body font; system stack unless
+  the user specifies.
+- **One grid per deck** — a single content padding held across every page.
+- **One aesthetic** — minimal, editorial, retro, brutalist, … — chosen up
+  front and never mixed.
+
+For a recipe-driven design system, write a theme — see
+[Themes](/docs/core-feature/themes).

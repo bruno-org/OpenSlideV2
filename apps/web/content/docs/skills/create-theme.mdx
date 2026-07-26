@@ -1,0 +1,34 @@
+---
+title: /create-theme
+description: Extracts a theme from an existing deck (or a brief).
+---
+
+`/create-theme` codifies a visual recipe into a reusable theme file. Run it
+once your decks start sharing a visual language.
+
+## What it does
+
+Writes a **theme bundle** under `themes/` — two paired files that share a
+stem, always produced together:
+
+- `themes/<id>.md` — palette, type stack, layout vocabulary, fixed
+  components, motion, and voice notes that `/create-slide` reads on its
+  next run.
+- `themes/<id>.demo.tsx` — a runnable 2–3 page mini-slide that the dev UI's
+  **Themes** panel renders as the theme's live preview.
+
+See [Themes](/docs/core-feature/themes) for the file format and how a theme
+is consumed.
+
+The input can be:
+
+- **An existing deck.** The skill scans `slides/<id>/index.tsx`, distils the
+  recurring tokens, and writes them out.
+- **A brief.** Describe the system in chat (*"warm editorial, serif display,
+  high-contrast palette"*) and the skill bootstraps the bundle from
+  scratch.
+- **Image references.** Pass screenshots or mood-board images and the
+  skill extracts palette, type, and layout cues from them.
+
+Once the bundle exists, `/create-slide` offers the theme on its next run —
+see [Themes](/docs/core-feature/themes#using-a-theme).

@@ -1,0 +1,62 @@
+---
+title: open-slide init
+description: Scaffold a new workspace.
+---
+
+```npm
+npx @open-slide/cli init [directory]
+```
+
+If `directory` is omitted, an interactive run prompts for one (defaulting to
+the current folder); non-interactive runs use the current folder. If it's
+provided and doesn't exist, it's created.
+
+## Flags
+
+| Flag                      | Default       | Description                                                              |
+| ------------------------- | ------------- | ------------------------------------------------------------------------ |
+| `-f, --force`             | off           | Scaffold into the target even if it's not empty.                         |
+| `-n, --name <name>`       | folder name   | Override the generated `package.json` name.                              |
+| `--use-npm`               | auto-detected | Install with npm.                                                        |
+| `--use-pnpm`              | auto-detected | Install with pnpm.                                                       |
+| `--use-yarn`              | auto-detected | Install with yarn.                                                       |
+| `--use-bun`               | auto-detected | Install with bun.                                                        |
+| `--no-install`            | off           | Skip dependency installation. You'll have to run `install` yourself.     |
+| `--no-git`                | off           | Skip `git init` and the initial commit.                                  |
+
+When no `--use-*` flag is passed, the scaffolder detects the package manager
+that launched it (via `npm_config_user_agent`) and falls back to `npm`. Pass
+an explicit flag to force one.
+
+The runtime UI language is picked in-app, not at init.
+
+## What it generates
+
+```text
+my-deck/
+├── slides/
+│   └── getting-started/    # starter slide + its assets
+├── themes/                 # empty — shared design systems
+├── assets/                 # global assets (@assets/* alias)
+├── .agents/
+│   └── skills/             # bundled agent skills
+├── .claude/
+│   └── skills/             # symlinks into .agents/skills/
+├── open-slide.config.ts    # framework config
+├── AGENTS.md               # agent rules
+├── CLAUDE.md               # symlink to AGENTS.md
+├── package.json
+├── tsconfig.json
+└── netlify.toml / vercel.json   # one-click deploy configs
+```
+
+## After init
+
+```npm
+cd my-deck
+npm install
+npm run dev
+```
+
+The dev server boots, opens the slide browser, and you're ready for your
+agent to take over.

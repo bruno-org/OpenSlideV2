@@ -1,0 +1,54 @@
+---
+title: Overview
+description: How open-slide and your coding agent work together.
+---
+
+open-slide treats your coding agent as a first-class user: every workspace
+ships with agent rules and a set of skills the agent invokes by name.
+
+## What ships in the workspace
+
+`npx @open-slide/cli init` generates an `AGENTS.md` (and `CLAUDE.md`) at the
+root with the framework's hard rules, plus five skills under
+`.agents/skills/` (with `.claude/skills/` symlinks for Claude Code):
+
+- [`/create-slide`](/docs/skills/create-slide)
+- [`/slide-authoring`](/docs/skills/slide-authoring)
+- [`/apply-comments`](/docs/skills/apply-comments)
+- [`/create-theme`](/docs/skills/create-theme)
+- [`/current-slide`](/docs/skills/current-slide)
+
+The skills are kept inside the workspace (not the agent's global config) so
+they version with the project. `open-slide sync:skills` re-syncs them from
+the package if you upgrade.
+
+## The hard rules (`AGENTS.md`)
+
+- Slides go under `slides/<kebab-case-id>/`.
+- Entry is `slides/<id>/index.tsx`.
+- Assets sit in `slides/<id>/assets/`.
+- Don't touch `package.json`, `open-slide.config.ts`, or other slides.
+- Don't add dependencies. Use only React and standard web APIs.
+
+These constraints keep an agent from accidentally installing a UI library,
+rewriting global config, or stomping on another deck.
+
+## Bring your own agent
+
+The framework is agent-agnostic. Any tool that can edit React files in a
+workspace can author slides — Claude Code, Codex, Cursor, Gemini CLI,
+OpenCode, Windsurf, and Zed all work. To author cleanly, the agent needs to:
+
+1. **Read the rules.** `AGENTS.md` (and `CLAUDE.md`) at the workspace root
+   define the file contract and constraints.
+2. **Find the skills.** The five skills above live under `.agents/skills/`
+   (or wherever that agent looks for skills).
+3. **Edit files.** That's it. There is no per-agent SDK.
+
+If your agent of choice doesn't have a skills system, paste the
+`slide-authoring` skill into context manually and ask the agent to follow
+its rules.
+
+`AGENTS.md` is the canonical rules file — it follows the cross-tool
+convention the agents above already look for. `CLAUDE.md` is a symlink to it
+(a copy on Windows) so Claude Code picks up the same rules automatically.
