@@ -16,11 +16,17 @@ function Tooltip({
   return <TooltipPrimitive.Root data-slot="tooltip" {...props} />
 }
 
-function TooltipTrigger({
-  ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
-  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
-}
+// Forwards its ref because a menu trigger renders through this component
+// (`<DropdownMenuTrigger render={<TooltipTrigger />}>`). Without it the menu
+// never learns which element it is anchored to and opens at the top left of the
+// viewport instead of under the button.
+const TooltipTrigger = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentProps<typeof TooltipPrimitive.Trigger>
+>((props, ref) => (
+  <TooltipPrimitive.Trigger data-slot="tooltip-trigger" ref={ref} {...props} />
+))
+TooltipTrigger.displayName = "TooltipTrigger"
 
 function TooltipContent({
   className,

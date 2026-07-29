@@ -13,6 +13,8 @@ import { type ApiContext, json } from './context.ts';
 //   runs `open-slide sync:skills`.
 
 const PKG = '@open-slide/core';
+/** Open Slide V2 is not published to npm; see fetchLatest and updatePackage. */
+const IS_FORK = true;
 const CACHE_TTL_MS = 10 * 60 * 1000;
 const COMMAND_TIMEOUT_MS = 300_000;
 
@@ -47,6 +49,10 @@ function isOutdated(current: string, latest: string): boolean {
 }
 
 async function fetchLatest(now: number): Promise<string | null> {
+  // This build is a fork, and the registry only knows the upstream package.
+  // Offering its "latest" here would invite a click that reinstalls upstream
+  // over this fork and silently drops everything it adds.
+  if (IS_FORK) return null;
   if (cache && now - cache.at < CACHE_TTL_MS) return cache.latest;
   try {
     const res = await fetch(`https://registry.npmjs.org/${PKG}/latest`, {
@@ -144,6 +150,14 @@ async function runCommand(spec: CommandSpec, cwd: string): Promise<void> {
 }
 
 async function updatePackage(ctx: ApiContext): Promise<UpdateResult> {
+  // Running the upstream install here would replace this fork with the package
+  // it was forked from, taking the editable PPTX export, the drag and resize
+  // layer and the dependency preflight with it.
+  if (IS_FORK) {
+    throw new Error(
+      'Open Slide V2 is installed from its own repository; update it with tools/install-into-workspace.mjs',
+    );
+  }
   const packageManager = await detectPackageManager(ctx.userCwd);
   const updateCommand = updateCommandFor(packageManager);
   const syncCommand = localOpenSlideCommand(ctx.userCwd);

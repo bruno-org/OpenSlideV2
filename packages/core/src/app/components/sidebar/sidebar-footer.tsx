@@ -1,4 +1,3 @@
-import config from 'virtual:open-slide/config';
 import { Loader2, RefreshCw, RotateCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -34,7 +33,9 @@ export function SidebarFooter() {
     };
   }, []);
 
-  const label = `v${config.version}`;
+  // V2 is part of the name, not a release number, so it says where it came from
+  // rather than showing the upstream version it was forked from.
+  const label = 'V2, an extended fork of open-slide 1.17.1';
   const isUpdating = updateStatus === 'running';
   const keepOpen = updateStatus === 'running' || restarting;
 
@@ -54,14 +55,16 @@ export function SidebarFooter() {
   }
 
   const versionRow = (
-    <span className="inline-flex cursor-default items-center gap-1.5">
-      {update?.latest && <span className="size-1.5 rounded-full bg-brand" aria-hidden />}
-      {label}
+    <span className="flex cursor-default items-start gap-1.5 leading-4">
+      {update?.latest && (
+        <span className="mt-1 size-1.5 shrink-0 rounded-full bg-brand" aria-hidden />
+      )}
+      <span className="text-balance">{label}</span>
     </span>
   );
 
   return (
-    <div className="px-4 py-3 text-[11px] text-muted-foreground/70 tabular-nums">
+    <div className="px-4 py-3 text-[11px] text-muted-foreground/70">
       {update?.latest ? (
         <TooltipProvider delay={200}>
           <Tooltip
