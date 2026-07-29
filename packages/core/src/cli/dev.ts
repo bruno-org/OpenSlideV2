@@ -5,12 +5,13 @@ import chalk from 'chalk';
 import { createServer, mergeConfig } from 'vite';
 import { createViteConfig } from '../vite/config.ts';
 import { DEV_SUPERVISED_ENV, RESTART_EXIT_CODE } from '../vite/routes/restart.ts';
-import { runPreflight } from './preflight.ts';
+import { runPreflight, shouldRunPreflight } from './preflight.ts';
 
 export interface DevOptions {
   port?: number;
   host?: string | boolean;
   open?: boolean;
+  preflight?: boolean;
 }
 
 export async function dev(opts: DevOptions = {}): Promise<void> {
@@ -22,15 +23,14 @@ export async function dev(opts: DevOptions = {}): Promise<void> {
 }
 
 async function startServer(opts: DevOptions): Promise<void> {
-  // Decks name fonts and import assets that live outside the file. Resolve what
-  // this machine is missing before serving, so a deck written elsewhere renders
-  // (and exports to PPTX) with the real thing instead of a substitute.
-  try {
-    await runPreflight(process.cwd());
-  } catch (err) {
-    process.stderr.write(
-      `${chalk.yellow('preflight:')} dependency check failed (${(err as Error).message})\n`,
-    );
+  if (shouldRunPreflight(opts)) {
+    try {
+      await runPreflight(process.cwd());
+    } catch (err) {
+      process.stderr.write(
+        `${chalk.yellow('preflight:')} dependency check failed (${(err as Error).message})\n`,
+      );
+    }
   }
 
   const base = await createViteConfig({ userCwd: process.cwd() });
@@ -105,6 +105,7 @@ function supervise(opts: DevOptions): void {
 
 function devArgs(opts: DevOptions): string[] {
   const args = ['dev', '--no-skills-check'];
+  if (opts.preflight === false) args.push('--no-preflight');
   if (opts.port !== undefined) args.push('--port', String(opts.port));
   if (opts.host === true) args.push('--host');
   else if (typeof opts.host === 'string') args.push('--host', opts.host);

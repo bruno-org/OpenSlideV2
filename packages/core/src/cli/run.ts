@@ -30,6 +30,7 @@ interface ServerFlags {
 
 interface DevFlags extends ServerFlags {
   skillsCheck?: boolean;
+  preflight?: boolean;
 }
 
 async function runSkillsDriftCheck(skillsDir: string): Promise<void> {
@@ -105,6 +106,7 @@ export async function run(argv: string[]): Promise<void> {
     .addOption(new Option('--host [host]', 'expose on the network (optional host)'))
     .option('--open', 'open the browser on start')
     .option('--no-skills-check', 'skip the built-in skills drift check')
+    .option('--no-preflight', 'skip the deck dependency check')
     .action(async (flags: DevFlags) => {
       if (flags.skillsCheck !== false) {
         await runSkillsDriftCheck(resolveBuiltinSkillsDir());

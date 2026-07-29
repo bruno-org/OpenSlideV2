@@ -1,4 +1,3 @@
-import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import chalk from 'chalk';
@@ -10,6 +9,17 @@ import { installFontFiles, listInstalledFamilies } from './system-fonts.ts';
  * deck would otherwise get silent substitutions, worst of all in the editable
  * PPTX export, which names fonts by family.
  */
+
+/**
+ * Never under CI: the machine is discarded after the run, so resolving what it
+ * is missing only buys latency and one more way for the job to fail.
+ */
+export function shouldRunPreflight(
+  opts: { preflight?: boolean },
+  env: NodeJS.ProcessEnv = process.env,
+): boolean {
+  return opts.preflight !== false && !env.CI;
+}
 
 export type PreflightReport = {
   decks: string[];
@@ -119,9 +129,16 @@ export async function runPreflight(
       report.fontsUnresolved.push({ family, reason: 'install disabled' });
       continue;
     }
-    const outcome = await installFamily(userCwd, family);
-    if (outcome.ok) report.fontsInstalled.push(family);
-    else report.fontsUnresolved.push({ family, reason: outcome.reason });
+    // One family that cannot be resolved, for any reason including a filesystem
+    // error nobody anticipated, is a line in the report and never the end of the
+    // run: the standalone command has no try/catch above it.
+    try {
+      const outcome = await installFamily(userCwd, family);
+      if (outcome.ok) report.fontsInstalled.push(family);
+      else report.fontsUnresolved.push({ family, reason: outcome.reason });
+    } catch (err) {
+      report.fontsUnresolved.push({ family, reason: (err as Error).message });
+    }
   }
 
   if (!opts.quiet) printReport(report);
@@ -145,26 +162,14 @@ async function installFamily(
   family: string,
 ): Promise<{ ok: boolean; reason: string }> {
   const pkg = packageForFamily(family);
+  // Reuse an outline the workspace already has, but never install the package to
+  // get one: that would write a dependency and a lockfile entry into the user's
+  // project as a side effect of starting a dev server. Font packages ship woff2
+  // anyway, which no operating system can install, so Google Fonts below is what
+  // actually resolves a missing family.
   let files = findFontFiles(userCwd, pkg);
 
   if (files.length === 0) {
-    // Not on disk yet: fetch it, then look again. Network problems degrade to a
-    // report line instead of blocking the server.
-    try {
-      execFileSync(npmCommand(), ['install', pkg, '--no-audit', '--no-fund'], {
-        cwd: userCwd,
-        stdio: 'ignore',
-        timeout: 180_000,
-      });
-      files = findFontFiles(userCwd, pkg);
-    } catch {
-      // The npm route is optional; Google Fonts below still covers most families.
-    }
-  }
-
-  if (files.length === 0) {
-    // Most font packages ship woff2 only, which no OS can install. Google Fonts
-    // serves the static TTFs for the same families, so fall back to that.
     files = await downloadFromGoogleFonts(userCwd, family);
   }
 
@@ -177,11 +182,6 @@ async function installFamily(
   const result = installFontFiles(files);
   if (result.installed === 0) return { ok: false, reason: 'copy into the fonts folder failed' };
   return { ok: true, reason: '' };
-}
-
-/** npm ships as a .cmd shim on Windows; naming it avoids spawning a shell. */
-function npmCommand(): string {
-  return process.platform === 'win32' ? 'npm.cmd' : 'npm';
 }
 
 /**
