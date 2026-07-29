@@ -117,12 +117,13 @@ export const en: Locale = {
     exportAsHtml: 'Export as HTML',
     exportAsPdf: 'Export as PDF',
     exportAsImagePptx: 'Export as image PPTX',
-    exportAsPptx: 'Export as PPTX',
+    exportAsPptx: 'Export as editable PPTX',
     comingSoon: 'Coming soon',
     pptxComingSoonTooltip:
       'Editable PPTX export isn’t ready yet. For now, use “Export as image PPTX” instead.',
     pdfExportFailed: 'PDF export failed',
     imagePptxExportFailed: 'PPTX export failed',
+    editablePptxExportFailed: 'Editable PPTX export failed',
     pdfExportSafariUnsupported:
       'Export as PDF is not supported on Safari. Please try a Chromium-based browser instead.',
     present: 'Present',

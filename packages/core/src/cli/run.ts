@@ -134,6 +134,23 @@ export async function run(argv: string[]): Promise<void> {
     });
 
   program
+    .command('preflight')
+    .description("Check and install this workspace's deck dependencies (fonts, assets)")
+    .option('--no-install', 'only report what is missing')
+    .action(async (flags: { install?: boolean }) => {
+      const { runPreflight } = await import('./preflight.ts');
+      const report = await runPreflight(process.cwd(), { install: flags.install !== false });
+      const ok = report.fontsUnresolved.length === 0 && report.assetsMissing.length === 0;
+      process.stdout.write(
+        `${ok ? chalk.green('preflight:') : chalk.yellow('preflight:')} ${report.decks.length} deck(s), ` +
+          `${report.fontsAlreadyPresent.length} font(s) already present, ` +
+          `${report.fontsInstalled.length} installed, ` +
+          `${report.fontsUnresolved.length} pending\n`,
+      );
+      if (!ok) process.exitCode = 1;
+    });
+
+  program
     .command('sync:skills')
     .description('Sync built-in skills from @open-slide/core into this workspace')
     .option('--dry-run', 'show what would change without writing')

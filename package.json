@@ -1,5 +1,5 @@
 {
-  "name": "open-slide-monorepo",
+  "name": "openslide-v2",
   "private": true,
   "version": "0.0.0",
   "packageManager": "pnpm@10.17.0",
@@ -22,7 +22,14 @@
     "cli": "pnpm --filter @open-slide/cli",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build --filter=@open-slide/core --filter=@open-slide/cli && changeset publish"
+    "release": "turbo run build --filter=@open-slide/core --filter=@open-slide/cli && changeset publish",
+    "setup": "node tools/install-fonts.mjs",
+    "setup:fonts": "node tools/install-fonts.mjs",
+    "fonts:list": "node tools/install-fonts.mjs --list",
+    "install:workspace": "node tools/install-into-workspace.mjs"
+  },
+  "dependencies": {
+    "geist": "^1.7.2"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.12",
