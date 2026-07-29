@@ -63,6 +63,7 @@ import { type ThumbnailActions, ThumbnailRail } from '../components/thumbnail-ra
 import { exportSlideAsHtml } from '../lib/export-html';
 import { exportSlideAsPdf, isSafari } from '../lib/export-pdf';
 import { exportSlideAsImagePptx } from '../lib/export-pptx';
+import { exportSlideAsEditablePptx } from '../lib/export-pptx-editable';
 import { remapNotesSessionCacheAfterReorder } from '../lib/inspector/use-notes';
 import type { SlideModule } from '../lib/sdk';
 import { usePrefersReducedMotion } from '../lib/use-prefers-reduced-motion';
@@ -498,6 +499,31 @@ export function Slide() {
     }
   };
 
+  const exportEditablePptx = async () => {
+    if (!slide || exporting) return;
+    setExporting(true);
+    const toastId = `pptx-editable-export-${slideId}`;
+    toast.custom(
+      () => (
+        <PptxProgressToast
+          progress={{ phase: 'processing', current: 0, total: pages.length, percent: 0 }}
+        />
+      ),
+      { id: toastId, duration: Infinity },
+    );
+    try {
+      await exportSlideAsEditablePptx(slide, slideId, (p) => {
+        toast.custom(() => <PptxProgressToast progress={p} />, { id: toastId, duration: Infinity });
+      });
+    } catch (err) {
+      console.error('[open-slide] editable pptx export failed', err);
+      toast.error(t.slide.editablePptxExportFailed, { id: toastId, duration: 4000 });
+    } finally {
+      setExporting(false);
+      toast.dismiss(toastId);
+    }
+  };
+
   const exportMenuItems = (
     <>
       <DropdownMenuItem disabled={exporting} onClick={exportHtml}>
@@ -513,32 +539,10 @@ export function Slide() {
         <FileImage />
         {t.slide.exportAsImagePptx}
       </DropdownMenuItem>
-      <TooltipProvider delay={200}>
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <div
-                aria-disabled
-                className="relative flex cursor-help items-center justify-between gap-2 rounded-[5px] px-2 py-1.5 text-[12.5px] opacity-45 select-none [&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:opacity-80"
-              >
-                <span className="flex items-center gap-2">
-                  <Presentation />
-                  {t.slide.exportAsPptx}
-                </span>
-                <span className="rounded-[3px] bg-muted px-1.5 py-0.5 font-mono text-[9.5px] tracking-[0.04em] text-muted-foreground">
-                  {t.slide.comingSoon}
-                </span>
-              </div>
-            }
-          />
-          <TooltipContent
-            side="left"
-            className="w-max max-w-[min(520px,calc(100vw-2rem))] text-center leading-relaxed"
-          >
-            {t.slide.pptxComingSoonTooltip}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <DropdownMenuItem disabled={exporting} onClick={exportEditablePptx}>
+        <Presentation />
+        {t.slide.exportAsPptx}
+      </DropdownMenuItem>
     </>
   );
 

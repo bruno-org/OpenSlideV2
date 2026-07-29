@@ -124,6 +124,7 @@ export type Locale = {
     pptxComingSoonTooltip: string;
     pdfExportFailed: string;
     imagePptxExportFailed: string;
+    editablePptxExportFailed: string;
     pdfExportSafariUnsupported: string;
     present: string;
     presentMenuAria: string;
