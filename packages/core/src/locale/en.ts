@@ -168,6 +168,9 @@ export const en: Locale = {
     jump: 'Jump',
     loadingSlide: 'Loading {slideId}…',
     loadingAssets: 'Loading assets…',
+    switchDeck: 'Switch presentation',
+    searchDecks: 'Search presentations…',
+    noDecksFound: 'No presentations match',
   },
 
   present: {

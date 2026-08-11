@@ -169,6 +169,9 @@ export type Locale = {
     /** template: "Loading {slideId}…" */
     loadingSlide: string;
     loadingAssets: string;
+    switchDeck: string;
+    searchDecks: string;
+    noDecksFound: string;
   };
 
   present: {
