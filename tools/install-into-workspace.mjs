@@ -11,14 +11,15 @@
  */
 
 import { execSync } from 'node:child_process';
-import { existsSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const FORK_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CORE = join(FORK_ROOT, 'packages', 'core');
 const workspace = process.argv[2] ? resolve(process.argv[2]) : resolve(FORK_ROOT, '..', 'Slides');
-const TGZ = 'open-slide-core-1.17.1.tgz';
+const { version } = JSON.parse(readFileSync(join(CORE, 'package.json'), 'utf8'));
+const TGZ = `open-slide-core-${version}.tgz`;
 
 const run = (cmd, cwd) => {
   console.log(`[run] ${cmd}`);

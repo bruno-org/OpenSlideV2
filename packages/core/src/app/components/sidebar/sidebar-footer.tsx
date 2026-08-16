@@ -35,7 +35,7 @@ export function SidebarFooter() {
 
   // V2 is part of the name, not a release number, so it says where it came from
   // rather than showing the upstream version it was forked from.
-  const label = 'V2, an extended fork of open-slide 1.17.1';
+  const label = 'V2, an extended fork of open-slide 1.18.0';
   const isUpdating = updateStatus === 'running';
   const keepOpen = updateStatus === 'running' || restarting;
 
